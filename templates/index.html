@@ -1,0 +1,24 @@
+{%extends "base.html"%}
+{%block body%}
+<div class="container text-center">
+<h2 class="title"> Enter a URL to shorten</h2>
+    <form method="POST">
+        <div class="mb-3">
+        <label for="url" name="url" >URL to shorten: </label>
+        <input type="text" name="url" required>
+        </div>
+        <div class="mb-3">
+            <label for="alias" name="alias">Custom Alias: </label>
+        <input type="text" name="alias" placeholder="Enter custom alias (optional)">
+        </div>
+        <button class="btn" type="submit">Shorten</button>
+        <input class="btn" type="reset">
+    </form>
+    {% if short_code_url %}
+        <p>Your shortened url is <a href="{{short_code_url}}">{{request.host}}/{{short_code_url}}</a></p>
+    {%endif%}
+    {% if msg%}
+        <p>This alias already exists! please try another alias.</p>
+    {%endif%}
+</div>
+{% endblock %}
