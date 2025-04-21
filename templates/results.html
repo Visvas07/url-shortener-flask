@@ -1,0 +1,105 @@
+{% extends "base.html"%}
+{%block body%}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+
+<div class="table-container">
+<table class='table'>
+    <thead>
+    <tr>
+        <th scope='col'>#</th>
+        {% for header in headers%}
+        <th scope='col'>{{header}}</th>
+        {%endfor%}
+    </tr>
+</thead>
+<tbody>
+    {%for url in urls%}
+    <tr id="row-{{url.id}}">
+        <td>{{loop.index}}</td>
+        <td >{{url.short_url_code}}</td>
+        <td>{{url.original_url}}</td>
+        <td><a href={{url.original_url}} target="_blank">{{request.host}}/{{url.short_url_code}}</a></td>
+        <td>
+            <form method="POST" action="{{url_for('delete',url_id = url.id)}}" style="display:inline;" class="delete-form" id="delete-form-{{url.id}}">
+            <button class="btn-danger btn-sm" style="cursor:pointer" onClick="deleteUrl({{url.id}})">
+                <i class="bi bi-trash3"></i>
+                <span id="deltooltip" class="tooltiptext">Delete</span>
+            </button>
+        </form>
+            <button class="btn btn-sm" style="cursor:pointer" onClick="copyToClipboard('{{ url.original_url }}', {{ url.id }})" data-id="{{ url.id }}">
+                <span id="tooltip-{{ url.id }}" class="tooltiptext">Copy URL</span>
+                <i class="bi bi-copy" id="icon-{{ url.id }}"></i>
+            </button>
+        </td>
+        
+    </tr>
+    {%endfor%}
+</tbody>
+</table>
+
+<a href="{{url_for('logout')}}"><button class="btn" type="button">Logout</button></a>
+</div>
+
+<script>
+    
+    function copyToClipboard(url,url_id){
+        const icon = document.querySelector(`#icon-${url_id}`);
+        const tooltip = document.querySelector(`#tooltip-${url_id}`);
+        navigator.clipboard.writeText(url).then(function(){
+            tooltip.innerHTML = "Copied"
+            icon.classList.remove('bi-copy')
+            icon.classList.add('bi-check2')
+            setTimeout(() => {
+                tooltip.innerHTML = "Copy URL"
+                icon.classList.remove('bi-check2')
+                icon.classList.add('bi-copy')
+            },1500)
+        },function(err){
+            tooltip.innerHTML = "Failed to copy: "+err
+        });
+    }
+
+    function deleteUrl(url_id){
+        const icon = document.querySelector(`#icon-${url_id}`);
+        const tooltip = document.querySelector(`#tooltip-${url_id}`);
+        tooltip.innerHTML = "Deleted"
+        icon.classList.remove('bi-trash')
+        icon.classList.add('bi-check2')
+        const form = document.getElementById('delete-form'+url_id)
+        const action = form.action
+
+        fetch(action,{
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({
+                url_id:url_id
+            })
+        }).then(response => response.json()).then(data=>{
+            console.log('Success :',data.msg)
+            document.getElementById('row-'+url_id).remove()
+        }).catch(error => {
+            console.error('Error:', error);
+            alert('Failed to delete URL!');
+            icon.classList.remove('bi-check2');
+            icon.classList.add('bi-trash3');
+            tooltip.innerHTML = "Failed to delete!";
+        })
+    }
+
+</script>
+
+{%endblock%}

@@ -12,13 +12,13 @@
         <input type="text" name="alias" placeholder="Enter custom alias (optional)">
         </div>
         <button class="btn" type="submit">Shorten</button>
-        <input class="btn" type="reset">
+        <a href="{{url_for('reset')}}"><button class="btn" type="button">Reset</button></a>
     </form>
-    {% if short_code_url %}
-        <p>Your shortened url is <a href="{{short_code_url}}">{{request.host}}/{{short_code_url}}</a></p>
+    {% if short_url %}
+        <p>Your shortened url is <a href="{{short_url}}">{{request.host}}/{{short_url}}</a></p>
     {%endif%}
     {% if msg%}
-        <p>This alias already exists! please try another alias.</p>
+        <p>{{msg}}</p>
     {%endif%}
 </div>
 {% endblock %}
